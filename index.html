@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Tokyo Survival Japanese</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+JP:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one narrow column like a station wayfinding sign; lessons are "stations" with Tokyo-style numbering badges, week = line color */
+:root{
+  --bg:#F2F4F7; --surface:#FFFFFF; --ink:#152038; --muted:#58637A; --line:#D5DBE4;
+  --sign:#1A2948; --sign-ink:#FFFFFF; --sign-muted:#A9B6CF;
+  --w1:#2C8F49; --w2:#D97F0B; --w3:#0A85B8;
+  --good:#1C7F47; --warn:#A86D12; --bad:#B93A33;
+  --good-bg:#E4F3EA; --warn-bg:#FBF0DD; --bad-bg:#F9E4E2;
+  --focus:#0A85B8;
+  --f-display:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","IBM Plex Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-jp:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D131F; --surface:#151D2C; --ink:#E6EBF3; --muted:#9AA6BA; --line:#283246;
+  --sign:#1F3050; --sign-ink:#FFFFFF; --sign-muted:#A9B6CF;
+  --w1:#4BBE6B; --w2:#F0A23A; --w3:#3BB2E4;
+  --good:#5BCB86; --warn:#E3AE52; --bad:#EE7A72;
+  --good-bg:#16301F; --warn-bg:#33270F; --bad-bg:#3A1A18; --focus:#3BB2E4; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D131F; --surface:#151D2C; --ink:#E6EBF3; --muted:#9AA6BA; --line:#283246;
+  --sign:#1F3050; --sign-ink:#FFFFFF; --sign-muted:#A9B6CF;
+  --w1:#4BBE6B; --w2:#F0A23A; --w3:#3BB2E4;
+  --good:#5BCB86; --warn:#E3AE52; --bad:#EE7A72;
+  --good-bg:#16301F; --warn-bg:#33270F; --bad-bg:#3A1A18; --focus:#3BB2E4; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:680px;margin:0 auto;padding-inline:16px;padding-block:0 120px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+a{color:inherit}
+.jp{font-family:var(--f-jp)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+
+/* station sign header */
+.sign{background:var(--sign);color:var(--sign-ink);margin-inline:-16px;padding:18px 16px 16px;display:flex;align-items:center;gap:14px}
+.sign .jp-big{font-family:var(--f-display);font-weight:900;font-size:1.45rem;letter-spacing:.04em}
+.sign .en{color:var(--sign-muted);font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.sign .mid{flex:1;min-width:0}
+.home-btn{background:transparent;border:1.5px solid var(--sign-muted);color:var(--sign-ink);border-radius:8px;padding:6px 10px;font-size:.85rem}
+
+/* numbering badge, like 駅ナンバリング */
+.badge{--c:var(--w1);flex:none;width:52px;height:52px;border:5px solid var(--c);border-radius:12px;background:var(--surface);color:var(--ink);display:grid;place-items:center;text-align:center;line-height:1;font-family:var(--f-mono);font-weight:600;overflow:hidden;white-space:nowrap}
+.badge b{display:block;font-size:.7rem;letter-spacing:.04em}
+.badge span{display:block;font-size:1.15rem}
+.badge.sm{width:44px;height:44px;border-width:4px}
+.badge.sm span{font-size:1rem}
+.c1{--c:var(--w1)} .c2{--c:var(--w2)} .c3{--c:var(--w3)}
+
+/* home */
+.intro{padding-block:20px 8px;display:grid;gap:10px}
+.intro p{margin:0;max-width:62ch;color:var(--muted)}
+.overall{display:flex;align-items:center;gap:12px;font-size:.9rem;color:var(--muted)}
+.meter{flex:1;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--w3);border-radius:99px}
+.line-block{margin-top:26px}
+.line-head{display:flex;align-items:baseline;gap:10px;padding-bottom:8px;border-bottom:4px solid var(--c)}
+.line-head h2{font-size:1.15rem}
+.line-head .sub{color:var(--muted);font-size:.85rem}
+.stops{list-style:none;margin:0;padding:0;position:relative}
+.stops::before{content:"";position:absolute;left:21px;top:0;bottom:0;width:6px;background:var(--c);opacity:.35}
+.stop{position:relative}
+.stop button{width:100%;display:flex;align-items:center;gap:14px;padding:10px 0;background:none;border:0;text-align:left}
+.stop button:hover .stop-title{text-decoration:underline}
+.stop-text{flex:1;min-width:0}
+.stop-title{font-weight:600}
+.stop-jp{color:var(--muted);font-size:.85rem}
+.chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.chip{font-size:.72rem;font-weight:600;border-radius:99px;padding:2px 8px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.chip.ok{background:var(--good-bg);color:var(--good);border-color:transparent}
+.chip.mid{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+
+/* lesson */
+.lesson-head{padding-block:20px 6px;display:grid;gap:8px}
+.lesson-head h1{font-size:1.6rem}
+.goal{color:var(--muted);margin:0;max-width:62ch}
+.tabs{display:flex;gap:6px;margin-block:16px 4px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding-block:8px;z-index:2}
+.tab{flex:1;border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 6px;font-weight:600;font-size:.9rem}
+.tab[aria-selected="true"]{background:var(--sign);border-color:var(--sign);color:var(--sign-ink)}
+.panel{display:grid;gap:14px;padding-top:10px}
+.tips{margin:0;padding:12px 14px;border-left:4px solid var(--c);background:var(--surface);border-radius:0 10px 10px 0;display:grid;gap:6px}
+.tips p{margin:0;font-size:.92rem}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toggle{display:inline-flex;gap:8px;align-items:center;font-size:.88rem;color:var(--muted)}
+.words{display:grid;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.word{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:12px 14px;border-top:1px solid var(--line)}
+.word:first-child{border-top:0}
+.word .w-jp{font-family:var(--f-jp);font-size:1.3rem;font-weight:500;min-width:0;overflow-wrap:anywhere}
+.word .w-kana{font-family:var(--f-jp);color:var(--muted);font-size:.9rem}
+.word .w-en{font-size:.95rem;grid-column:1/-1}
+.hide-en .word .w-en{filter:blur(6px);cursor:pointer;user-select:none}
+.hide-en .word.peek .w-en{filter:none}
+.say{border:1px solid var(--line);background:var(--bg);border-radius:8px;width:40px;height:36px;display:grid;place-items:center;align-self:start}
+.say svg{width:18px;height:18px;fill:var(--ink)}
+.btn{border:0;background:var(--sign);color:var(--sign-ink);border-radius:10px;padding:11px 16px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* quiz */
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:14px}
+.qmeta{display:flex;justify-content:space-between;color:var(--muted);font-size:.82rem;font-family:var(--f-mono)}
+.qprompt{font-size:1.05rem;font-weight:500}
+.qprompt .jp{font-size:1.5rem;display:block;margin-top:4px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:11px 13px;font-size:1rem}
+.opt.jp{font-size:1.15rem}
+.opt.right{border-color:var(--good);background:var(--good-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.result{font-size:1.05rem}
+.score-big{font-family:var(--f-display);font-weight:900;font-size:2.4rem;line-height:1}
+.misses{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.92rem}
+
+/* speak */
+.drill{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px}
+.drill .sit{font-weight:600}
+.drill .n{font-family:var(--f-mono);color:var(--muted);font-size:.78rem}
+textarea{width:100%;min-height:64px;resize:vertical;border:1.5px solid var(--line);border-radius:10px;padding:10px;background:var(--bg);color:var(--ink);font-family:var(--f-jp);font-size:1.1rem}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fb{border-radius:10px;padding:12px;display:grid;gap:6px;font-size:.95rem}
+.fb.correct{background:var(--good-bg)} .fb.close{background:var(--warn-bg)} .fb.retry{background:var(--bad-bg)}
+.fb .verdict{font-weight:700}
+.fb.correct .verdict{color:var(--good)} .fb.close .verdict{color:var(--warn)} .fb.retry .verdict{color:var(--bad)}
+.fb .nat{font-family:var(--f-jp);font-size:1.15rem}
+.note{color:var(--muted);font-size:.86rem;margin:0}
+.model{font-family:var(--f-jp);font-size:1.1rem}
+
+/* role-play */
+.chat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;max-height:60vh;overflow:auto}
+.msg{max-width:88%;padding:10px 12px;border-radius:12px;display:grid;gap:4px}
+.msg.staff{background:var(--bg);border:1px solid var(--line)}
+.msg.me{justify-self:end;background:var(--sign);color:var(--sign-ink)}
+.msg .jp{font-size:1.1rem}
+.msg .gloss{font-size:.82rem;color:var(--muted)}
+.msg .corr{font-size:.85rem;color:var(--warn);border-top:1px dashed var(--line);padding-top:4px}
+.msg.me .gloss{color:var(--sign-muted)}
+
+/* bottom nav */
+.botnav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));z-index:5}
+.botnav .in{max-width:680px;margin:0 auto;display:flex;gap:8px}
+.botnav button{flex:1}
+.sync{font-size:.75rem;color:var(--muted);text-align:center;margin-top:24px}
+@media (prefers-reduced-motion:no-preference){.opt,.tab,.btn{transition:background .15s,border-color .15s}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="sign" id="sign">
+    <div class="badge c1" id="signBadge" hidden><div><b>W1</b><span>01</span></div></div>
+    <div class="mid">
+      <div class="jp-big" id="signJp">東京サバイバル日本語</div>
+      <div class="en" id="signEn">Tokyo Survival Japanese</div>
+    </div>
+    <button class="home-btn" id="homeBtn" hidden>All lessons</button>
+  </header>
+  <main id="app"></main>
+  <p class="sync" id="sync"></p>
+</div>
+<nav class="botnav" id="botnav" hidden><div class="in">
+  <button class="btn ghost" id="prevBtn">← Prev</button>
+  <button class="btn" id="nextBtn">Next →</button>
+</div></nav>
+
+<script>
+// ---------- course data ----------
+const WEEKS=[
+ {n:1,title:"Trains and stations",jp:"電車・駅"},
+ {n:2,title:"Food and paying",jp:"食事・支払い"},
+ {n:3,title:"Hotel, taxi, shopping, help",jp:"ホテル・タクシー・買い物"}
+];
+// v: [kanji/phrase, reading, meaning]  d: [situation, model answer]
+const L=[
+{id:"w1d1",w:1,day:1,t:"In and out",jp:"改札と出口",goal:"Get through the gates and out the right exit.",
+ tips:["口 on a sign usually means exit or opening, so 東口 is the East Exit.","Big stations have numbered exits (A1, B3). Check the closest one on Google Maps before you get off."],
+ v:[["改札","かいさつ","Ticket gates"],["出口","でぐち","Exit"],["入口","いりぐち","Entrance"],["東口","ひがしぐち","East exit"],["西口","にしぐち","West exit"],["南口","みなみぐち","South exit"],["北口","きたぐち","North exit"],["中央口","ちゅうおうぐち","Central exit"],["乗り換え","のりかえ","Transfer"],["乗り場","のりば","Boarding area (trains, buses, taxis)"],["地上","ちじょう","Street level"],["階段","かいだん","Stairs"]],
+ d:[["Ask where the ticket gates are.","改札はどこですか？"],["Ask where the east exit is.","東口はどこですか？"],["Ask where you transfer.","乗り換えはどこですか？"],["Ask where the taxi stand is.","タクシー乗り場はどこですか？"]]},
+{id:"w1d2",w:1,day:2,t:"Finding your train",jp:"ホームと行き先",goal:"Read platform signs and pick the right direction.",
+ tips:["方面 tells you the general direction. 行き is the train's final stop.","先発 is the train leaving first, 次発 is the one after it."],
+ v:[["番線","ばんせん","Track / platform number"],["方面","ほうめん","Toward (direction)"],["行き","いき","Bound for (final stop)"],["次","つぎ","Next"],["先発","せんぱつ","Leaves first"],["次発","じはつ","Leaves after that"],["発車","はっしゃ","Departure"],["地下鉄","ちかてつ","Subway"],["女性専用車","じょせいせんようしゃ","Women-only car"],["優先席","ゆうせんせき","Priority seats"],["始発","しはつ","First train of the day"],["終電","しゅうでん","Last train"]],
+ d:[["Say you want to go to Shibuya and ask which track.","渋谷に行きたいんですが、何番線ですか？"],["Ask if this platform is for trains toward Shinjuku.","新宿方面はこのホームですか？"],["Ask what time the last train is.","終電は何時ですか？"]]},
+{id:"w1d3",w:1,day:3,t:"Train types",jp:"各駅・快速・急行",goal:"Know which trains skip your stop.",
+ tips:["The same line can run locals and expresses on the same track. Check the type on the board before boarding.","特急 usually needs an extra ticket on top of your fare."],
+ v:[["各駅停車","かくえきていしゃ","Local, stops everywhere"],["普通","ふつう","Local train"],["快速","かいそく","Rapid, skips some stops"],["急行","きゅうこう","Express, skips more"],["特急","とっきゅう","Limited express, extra ticket"],["通過","つうか","Passes through, no stop"],["停車駅","ていしゃえき","Stations it stops at"],["号車","ごうしゃ","Car number"],["両","りょう","Counter for train cars"]],
+ d:[["Ask if this train stops at Shibuya.","この電車は渋谷に止まりますか？"],["Ask if this is a local train.","これは各駅停車ですか？"],["Ask if you need a limited express ticket for this train.","この電車は特急券が必要ですか？"]]},
+{id:"w1d4",w:1,day:4,t:"Tickets and IC cards",jp:"切符とICカード",goal:"Top up, fix a short fare, buy a seat.",
+ tips:["If the gate beeps and closes, you're usually short on balance. Use the 精算機 or the staffed window by the gates.","Suica works on your phone (Apple Wallet) or as a card."],
+ v:[["切符","きっぷ","Ticket"],["券売機","けんばいき","Ticket machine"],["チャージ","チャージ","Add money to IC card"],["残高","ざんだか","Balance"],["精算機","せいさんき","Fare adjustment machine"],["残高不足","ざんだかぶそく","Insufficient balance"],["指定席","していせき","Reserved seat"],["自由席","じゆうせき","Unreserved seat"],["片道","かたみち","One way"],["往復","おうふく","Round trip"],["払い戻し","はらいもどし","Refund"],["領収書","りょうしゅうしょ","Receipt"]],
+ d:[["Ask where you can top up your card.","どこでチャージできますか？"],["Tell gate staff your balance seems short.","残高が足りないみたいです。"],["Buy one adult reserved seat to Kyoto.","京都まで、指定席を大人一枚お願いします。"]]},
+{id:"w1d5",w:1,day:5,t:"Announcements",jp:"車内放送",goal:"Catch the station name, door side and warnings by ear.",listen:true,
+ tips:["The quiz on this page plays audio. Tap the speaker, then pick the meaning. Use Show text only if you're stuck.","閉まる is close, 開く is open. Mixing these up is the one that matters."],
+ v:[["次は新宿、新宿です。","つぎはしんじゅく、しんじゅくです","Next stop is Shinjuku."],["お出口は右側です。","おでぐちはみぎがわです","Doors open on the right."],["山手線はお乗り換えです。","やまのてせんはおのりかえです","Transfer here for the Yamanote Line."],["まもなく2番線に東京行きが参ります。","まもなくにばんせんにとうきょういきがまいります","A train for Tokyo arrives soon on track 2."],["黄色い線の内側までお下がりください。","きいろいせんのうちがわまでおさがりください","Stand behind the yellow line."],["ドアが閉まります。ご注意ください。","ドアがしまります。ごちゅういください","Doors closing. Watch out."],["駆け込み乗車はおやめください。","かけこみじょうしゃはおやめください","Don't rush onto the train."],["お忘れ物のないようご注意ください。","おわすれもののないようごちゅういください","Don't leave anything behind."]],
+ d:[["On a crowded train, get people to let you off.","すみません、降ります。"],["Ask the person next to you if the next stop is Shinjuku.","次は新宿ですか？"]]},
+{id:"w1d6",w:1,day:6,t:"Disruptions",jp:"遅延と運転見合わせ",goal:"Know when a line is down and what to do.",
+ tips:["人身事故 means an accident on the tracks. Expect an hour or more of delays.","振替輸送 means other lines will take your fare. Ask staff which ones."],
+ v:[["遅延","ちえん","Delay"],["運転見合わせ","うんてんみあわせ","Service suspended"],["運休","うんきゅう","Cancelled"],["人身事故","じんしんじこ","Accident on the tracks"],["振替輸送","ふりかえゆそう","Other lines honor your fare"],["運転再開","うんてんさいかい","Service resumes"],["見込み","みこみ","Expected (time)"],["路線","ろせん","Line / route"],["忘れ物","わすれもの","Item left behind"]],
+ d:[["Ask staff about when service will resume.","運転再開は何時ごろですか？"],["Ask if you can get there on another line.","他の路線で行けますか？"],["Tell staff you left something on the train.","電車に忘れ物をしました。"]]},
+{id:"w1d7",w:1,day:7,t:"Week 1 review",jp:"一週目のまとめ",goal:"Mixed quiz from all of Week 1, then a role-play with station staff.",review:true,
+ rp:"You are a polite JR station attendant at the staffed window next to the ticket gates at Shinjuku Station. The traveler has a problem getting where they're going (for example: wants to reach Shibuya, gate rejected their card, or asks about a delayed line). Start by greeting them and asking how you can help."},
+{id:"w2d1",w:2,day:1,t:"Menu structure",jp:"メニューの読み方",goal:"Read how a Japanese menu is organized.",
+ tips:["税込 prices are what you pay. 税別 adds 10% (8% for takeout food).","並盛り is the default size at gyudon and ramen shops."],
+ v:[["定食","ていしょく","Set meal"],["単品","たんぴん","À la carte"],["丼","どんぶり","Rice bowl"],["並盛り","なみもり","Regular portion"],["大盛り","おおもり","Large portion"],["おすすめ","おすすめ","Recommended"],["本日の","ほんじつの","Today's"],["限定","げんてい","Limited"],["税込","ぜいこみ","Tax included"],["税別","ぜいべつ","Tax extra"],["品切れ","しなぎれ","Sold out"],["食べ放題","たべほうだい","All you can eat"],["飲み放題","のみほうだい","All you can drink"]],
+ d:[["Order the set meal, large portion.","定食を大盛りでお願いします。"],["Ask if the price includes tax.","これは税込ですか？"],["Ask what they recommend.","おすすめは何ですか？"]]},
+{id:"w2d2",w:2,day:2,t:"Food words",jp:"食べ物の言葉",goal:"Know what's in the dish.",
+ tips:["豚 reads ぶた on its own but とん in compounds like 豚カツ.","鶏 is chicken. Don't confuse it with 鳥 (bird) on signs, though both mean poultry on menus."],
+ v:[["肉","にく","Meat"],["牛","ぎゅう","Beef"],["豚","ぶた / とん","Pork"],["鶏","とり","Chicken"],["魚","さかな","Fish"],["海老","えび","Shrimp"],["卵","たまご","Egg"],["野菜","やさい","Vegetables"],["ご飯","ごはん","Rice"],["麺","めん","Noodles"],["辛い","からい","Spicy"],["甘口","あまくち","Mild"],["替え玉","かえだま","Extra noodles (ramen)"]],
+ d:[["Ask if this has pork in it.","これは豚肉が入っていますか？"],["Ask them to make it not spicy.","辛くしないでください。"],["Order extra noodles at a ramen shop.","替え玉お願いします。"]]},
+{id:"w2d3",w:2,day:3,t:"Restaurant flow",jp:"入店から会計まで",goal:"Seating, ordering, and paying without English.",
+ tips:["Say すみません! clearly to call staff. It's normal, not rude.","In many places you pay at the register by the door, not at the table."],
+ v:[["何名様ですか？","なんめいさまですか","How many people?"],["ご予約はされていますか？","ごよやくはされていますか","Do you have a reservation?"],["ご注文はお決まりですか？","ごちゅうもんはおきまりですか","Are you ready to order?"],["以上でよろしいですか？","いじょうでよろしいですか","Is that everything?"],["少々お待ちください。","しょうしょうおまちください","One moment, please."],["予約","よやく","Reservation"],["お会計","おかいけい","Check / bill"],["別々","べつべつ","Separately"],["お冷","おひや","Water"],["おかわり","おかわり","Refill"]],
+ d:[["Two people, no reservation.","二人です。予約してないです。"],["Order this and two beers.","これと、ビールを二つお願いします。"],["Ask for the check, paying separately.","お会計お願いします。別々でお願いします。"]]},
+{id:"w2d4",w:2,day:4,t:"Ticket machines and izakaya",jp:"食券機と居酒屋",goal:"Buy a meal ticket, and know what the izakaya will charge.",
+ tips:["At ramen and gyudon shops, buy a 食券 at the machine by the door, then hand it to staff.","The small dish you didn't order at an izakaya is お通し. It comes with a table charge."],
+ v:[["食券","しょっけん","Meal ticket"],["食券機","しょっけんき","Meal ticket machine"],["現金のみ","げんきんのみ","Cash only"],["交通系IC","こうつうけいアイシー","Transit IC card OK"],["お釣り","おつり","Change"],["取消","とりけし","Cancel"],["お通し","おとおし","Appetizer + table charge"],["生ビール","なまビール","Draft beer"],["ラストオーダー","ラストオーダー","Last order"]],
+ d:[["Ask if you can pay with an IC card.","ICカードで払えますか？"],["Ask how to buy a meal ticket.","食券はどうやって買いますか？"],["Order a draft beer.","生ビールお願いします。"],["Ask what time last order is.","ラストオーダーは何時ですか？"]]},
+{id:"w2d5",w:2,day:5,t:"The register script",jp:"レジの決まり文句",goal:"Understand every line the cashier says and answer fast.",
+ tips:["大丈夫です is your polite \"no thanks\" for bags, receipts, chopsticks.","Put cash on the little tray, not in the clerk's hand."],
+ v:[["ポイントカードはお持ちですか？","ぽいんとかーどはおもちですか","Do you have a point card?"],["袋はご利用ですか？","ふくろはごりようですか","Do you need a bag?"],["お支払いはどうなさいますか？","おしはらいはどうなさいますか","How will you pay?"],["一括でよろしいですか？","いっかつでよろしいですか","Single payment OK?"],["こちらにタッチしてください。","こちらにたっちしてください","Tap here."],["暗証番号の入力をお願いします。","あんしょうばんごうのにゅうりょくをおねがいします","Enter your PIN."],["こちらにサインをお願いします。","こちらにさいんをおねがいします","Sign here, please."],["レシートはご利用ですか？","れしーとはごりようですか","Do you want the receipt?"],["お返しです。","おかえしです","Here's your change."]],
+ d:[["Clerk: ポイントカードはお持ちですか？ You don't have one.","いいえ、ないです。"],["Clerk: 袋はご利用ですか？ You want a bag.","はい、お願いします。"],["Clerk: お支払いはどうなさいますか？ You'll pay by card.","カードでお願いします。"],["Clerk: レシートはご利用ですか？ You don't want it.","大丈夫です。"]]},
+{id:"w2d6",w:2,day:6,t:"Konbini",jp:"コンビニ",goal:"Get through 7-Eleven, Lawson, FamilyMart smoothly.",
+ tips:["Buying alcohol? The register screen asks you to confirm your age. Tap はい.","7-Eleven ATMs take foreign cards."],
+ v:[["温めますか？","あたためますか","Shall I heat it up?"],["お箸おつけしますか？","おはしおつけしますか","Want chopsticks?"],["スプーンおつけしますか？","すぷーんおつけしますか","Want a spoon?"],["年齢確認をお願いします。","ねんれいかくにんをおねがいします","Please confirm your age."],["袋分けますか？","ふくろわけますか","Separate bags (hot and cold)?"],["大丈夫です。","だいじょうぶです","No thanks / I'm fine."]],
+ d:[["Clerk: 温めますか？ Yes, please.","はい、お願いします。"],["Clerk: お箸おつけしますか？ You want two pairs.","二膳お願いします。"],["Ask where the ATM is.","ATMはどこですか？"]]},
+{id:"w2d7",w:2,day:7,t:"Week 2 review",jp:"二週目のまとめ",goal:"Mixed quiz from all of Week 2, then a role-play at a konbini register.",review:true,
+ rp:"You are a cashier at a Tokyo convenience store (konbini). The customer brings a bento, a can of beer and a coffee to the register. Go through the real register script naturally: heat the bento?, chopsticks?, bag?, age confirmation for the beer, point card?, how will you pay?, receipt? Start with いらっしゃいませ and the first question."},
+{id:"w3d1",w:3,day:1,t:"Hotel",jp:"ホテル",goal:"Check in, store bags, ask the basics.",
+ tips:["Say your name with 予約している〇〇です and hand over your passport.","大浴場 is a shared bath. Check the hours on the sign."],
+ v:[["予約している〇〇です。","よやくしている〇〇です","I have a reservation under 〇〇."],["チェックイン","チェックイン","Check-in"],["荷物","にもつ","Luggage"],["預かる","あずかる","Hold (keep) for someone"],["朝食","ちょうしょく","Breakfast"],["大浴場","だいよくじょう","Shared bath"],["非常口","ひじょうぐち","Emergency exit"],["部屋","へや","Room"]],
+ d:[["Say you have a reservation, name Escasa.","予約しているエスカサです。"],["Ask them to hold your bags.","荷物を預かってもらえますか？"],["Ask what time breakfast starts.","朝食は何時からですか？"]]},
+{id:"w3d2",w:3,day:2,t:"Taxi",jp:"タクシー",goal:"Give the destination, pay, and get out where you want.",
+ tips:["The back door opens and closes by itself. Leave it alone.","Showing the address on your phone is completely normal."],
+ v:[["〇〇までお願いします。","〇〇までおねがいします","To 〇〇, please."],["ここで止めてください。","ここでとめてください","Stop here, please."],["この辺で大丈夫です。","このへんでだいじょうぶです","Around here is fine."],["領収書","りょうしゅうしょ","Receipt"],["空車","くうしゃ","Available (taxi sign)"],["賃走","ちんそう","Occupied (meter running)"]],
+ d:[["Ask the driver to take you to Tokyo Station.","東京駅までお願いします。"],["Ask if you can pay by card.","カード使えますか？"],["Ask the driver to stop here.","ここで止めてください。"]]},
+{id:"w3d3",w:3,day:3,t:"Drugstore",jp:"ドラッグストア",goal:"Find basic medicine and ask the pharmacist.",
+ tips:["Some medicine is behind the counter. Ask the 薬剤師.","〇〇に効く薬 means medicine that works for 〇〇."],
+ v:[["薬","くすり","Medicine"],["頭痛薬","ずつうやく","Headache medicine"],["風邪薬","かぜぐすり","Cold medicine"],["胃薬","いぐすり","Stomach medicine"],["目薬","めぐすり","Eye drops"],["絆創膏","ばんそうこう","Bandages"],["薬剤師","やくざいし","Pharmacist"],["効く","きく","Works (for)"]],
+ d:[["Ask if they have headache medicine.","頭痛薬はありますか？"],["Ask for something that works for a cold.","風邪に効く薬はありますか？"]]},
+{id:"w3d4",w:3,day:4,t:"Shopping and tax-free",jp:"買い物と免税",goal:"Shop, try things on, get tax back.",
+ tips:["免税 counters need your passport.","見ているだけです politely gets a hovering clerk to relax."],
+ v:[["免税","めんぜい","Tax-free"],["試着","しちゃく","Trying on"],["サイズ","サイズ","Size"],["色","いろ","Color"],["見ているだけです。","みているだけです","Just looking."],["セール","セール","Sale"],["割引","わりびき","Discount"],["コインロッカー","コインロッカー","Coin lockers"]],
+ d:[["Ask if you can try it on.","試着してもいいですか？"],["Ask if there's another size.","他のサイズはありますか？"],["Tell the clerk you're just looking.","見ているだけです。"]]},
+{id:"w3d5",w:3,day:5,t:"Lost items and emergencies",jp:"落とし物と緊急",goal:"Report a lost item and get help fast.",
+ tips:["119 is ambulance or fire. 110 is police.","Station staff can track items left on trains. Know the line, time and car if you can."],
+ v:[["落とし物","おとしもの","Lost and found"],["なくしました","なくしました","I lost (it)"],["財布","さいふ","Wallet"],["救急車","きゅうきゅうしゃ","Ambulance"],["警察","けいさつ","Police"],["病院","びょういん","Hospital"],["交番","こうばん","Police box"],["助けてください！","たすけてください","Help!"]],
+ d:[["Tell staff you lost your wallet.","財布をなくしました。"],["Ask if there's a hospital nearby.","近くに病院はありますか？"],["Ask someone to call an ambulance.","救急車を呼んでください。"]]},
+{id:"w3d6",w:3,day:6,t:"Keeping it in Japanese",jp:"日本語で話す",goal:"Stay in Japanese when staff switch to English.",
+ tips:["Keep it light and smile. Most staff are happy to stay in Japanese once asked.","もう一度 and ゆっくり buy you time without giving up."],
+ v:[["日本語で大丈夫です。","にほんごでだいじょうぶです","Japanese is fine."],["練習","れんしゅう","Practice"],["もう一度お願いします。","もういちどおねがいします","One more time, please."],["ゆっくりお願いします。","ゆっくりおねがいします","Slowly, please."],["どういう意味ですか？","どういういみですか","What does it mean?"],["わかりました。","わかりました","Got it."]],
+ d:[["The clerk switches to English. Say Japanese is fine.","日本語で大丈夫です。"],["Say you're practicing, so Japanese please.","日本語を練習しているので、日本語でお願いします。"],["Ask them to say it once more, slowly.","もう一度、ゆっくりお願いします。"]]},
+{id:"w3d7",w:3,day:7,t:"Week 3 review",jp:"三週目のまとめ",goal:"Mixed quiz from all of Week 3, then a hotel front desk role-play.",review:true,
+ rp:"You are a front desk clerk at a business hotel in Shinjuku. The guest is arriving in the early afternoon, before check-in time (3 PM). Help them: confirm the reservation, explain check-in time, offer to hold their luggage, and answer questions about breakfast or the area. Start with いらっしゃいませ."}
+];
+
+// ---------- state ----------
+const STORE_KEY="tsj-progress-v1";
+let P={quiz:{},speak:{},rp:{}};
+try{const s=localStorage.getItem(STORE_KEY); if(s) P=Object.assign(P,JSON.parse(s));}catch(e){}
+let dbRef=null, saveTimer=null, sampleFn=null, sampleChecked=false;
+function save(){
+  try{localStorage.setItem(STORE_KEY,JSON.stringify(P));}catch(e){}
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{ if(dbRef) dbRef.set(JSON.parse(JSON.stringify(P))).then(()=>setSync("Progress saved to your account.")).catch(()=>setSync("Progress saved on this device only.")); },800);
+}
+function setSync(t){document.getElementById("sync").textContent=t}
+function mergeP(a,b){ // keep best of both
+  const out={quiz:{...a.quiz},speak:{...a.speak},rp:{...a.rp,...b.rp}};
+  for(const k in b.quiz) out.quiz[k]=Math.max(out.quiz[k]||0,b.quiz[k]);
+  for(const k in b.speak){out.speak[k]={...(out.speak[k]||{}),...b.speak[k]};}
+  return out;
+}
+(async()=>{
+  try{
+    if(!window.claude||!claude.use) {sampleChecked=true;setSync("Progress saved on this device."); return;}
+    claude.use("sample").then(s=>{sampleFn=s;sampleChecked=true;softRender();});
+    const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]);
+    if(!db||!user){setSync("Progress saved on this device."); return;}
+    const id=await user.id(); if(!id){setSync("Progress saved on this device."); return;}
+    dbRef=db.collection("data/users/"+id).doc("progress");
+    const snap=await dbRef.get();
+    if(snap.exists){P=mergeP(P,snap.data()); try{localStorage.setItem(STORE_KEY,JSON.stringify(P));}catch(e){}}
+    setSync("Progress syncs to your Claude account.");
+    softRender();
+  }catch(e){setSync("Progress saved on this device.");}
+})();
+setTimeout(()=>{sampleChecked=true;},11000);
+
+// ---------- helpers ----------
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const byId=id=>L.find(x=>x.id===id);
+const weekVocab=w=>L.filter(x=>x.w===w&&x.v).flatMap(x=>x.v);
+const weekDrills=w=>L.filter(x=>x.w===w&&x.d).flatMap(x=>x.d);
+const SPK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>';
+const canSpeak="speechSynthesis" in window;
+let jaVoice=null;
+function pickVoice(){try{jaVoice=speechSynthesis.getVoices().find(v=>/^ja/i.test(v.lang))||null}catch(e){}}
+if(canSpeak){pickVoice();try{speechSynthesis.onvoiceschanged=pickVoice}catch(e){}}
+function speak(text){
+  if(!canSpeak) return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.replace(/〇〇/g,"なになに"));u.lang="ja-JP";if(jaVoice)u.voice=jaVoice;u.rate=.9;speechSynthesis.speak(u);}catch(e){}
+}
+function lessonStatus(x){
+  const q=P.quiz[x.id]; const drills=x.review?[]:x.d; const sp=P.speak[x.id]||{};
+  const spokeOk=drills.filter((_,i)=>sp[i]==="correct").length;
+  return {q,spokeOk,spokeTotal:drills.length,rp:!!P.rp[x.id]};
+}
+function isDone(x){const s=lessonStatus(x);return (s.q||0)>=80&&(x.review?s.rp:s.spokeOk===s.spokeTotal)}
+
+// ---------- routing ----------
+window.addEventListener("hashchange",()=>{render();window.scrollTo(0,0)});
+$("#homeBtn").onclick=()=>{location.hash=""};
+function current(){const h=location.hash.slice(1);return byId(h)}
+
+let tab="learn";
+function softRender(){ // refresh without wiping work in progress
+  if(!current()){render();return}
+  if(tab==="quiz") return;
+  const typed=[...document.querySelectorAll("textarea")].some(t=>t.value.trim());
+  if(!typed&&!(RP&&RP.log.length)) render();
+}
+function render(){
+  const x=current();
+  if(!x){renderHome();return}
+  renderLesson(x);
+}
+
+// ---------- home ----------
+function renderHome(){
+  $("#signBadge").hidden=true;$("#homeBtn").hidden=true;$("#botnav").hidden=true;
+  $("#signJp").textContent="東京サバイバル日本語";$("#signEn").textContent="Tokyo Survival Japanese";
+  const done=L.filter(isDone).length;
+  let next=L.find(x=>!isDone(x));
+  let h=`<section class="intro">
+   <p>21 short lessons, one a day, built from your placement test. Each one has words to learn, a quiz, and speaking drills that get checked. A lesson is done when you score 80% or better on the quiz and get every drill marked correct.</p>
+   <div class="overall"><span>${done} of ${L.length} done</span><div class="meter"><i style="width:${Math.round(done/L.length*100)}%"></i></div></div>
+   ${next?`<div><button class="btn" id="go">Continue: ${esc(next.t)}</button></div>`:""}
+  </section>`;
+  for(const W of WEEKS){
+    h+=`<section class="line-block c${W.n}"><div class="line-head"><h2>Week ${W.n}: ${esc(W.title)}</h2><span class="sub jp">${W.jp}</span></div><ol class="stops">`;
+    for(const x of L.filter(y=>y.w===W.n)){
+      const s=lessonStatus(x);
+      let chips="";
+      if(s.q!=null) chips+=`<span class="chip ${s.q>=80?"ok":"mid"}">Quiz ${s.q}%</span>`;
+      if(!x.review&&Object.keys(P.speak[x.id]||{}).length) chips+=`<span class="chip ${s.spokeOk===s.spokeTotal?"ok":"mid"}">Speak ${s.spokeOk}/${s.spokeTotal}</span>`;
+      if(x.review&&s.rp) chips+=`<span class="chip ok">Role-play</span>`;
+      h+=`<li class="stop"><button data-go="${x.id}"><div class="badge sm c${x.w}"><div><b>W${x.w}</b><span>${pad(x.day)}</span></div></div>
+        <div class="stop-text"><div class="stop-title">${esc(x.t)}</div><div class="stop-jp jp">${esc(x.jp)}</div></div><div class="chips">${chips}</div></button></li>`;
+    }
+    h+=`</ol></section>`;
+  }
+  $("#app").innerHTML=h;
+  $("#app").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{tab="learn";location.hash=b.dataset.go});
+  const g=$("#go"); if(g) g.onclick=()=>{tab="learn";location.hash=next.id};
+}
+
+// ---------- lesson ----------
+function renderLesson(x){
+  const i=L.indexOf(x);
+  $("#signBadge").hidden=false;$("#signBadge").className="badge c"+x.w;
+  $("#signBadge").innerHTML=`<div><b>W${x.w}</b><span>${pad(x.day)}</span></div>`;
+  $("#signJp").textContent=x.jp;$("#signEn").textContent=x.t;
+  $("#homeBtn").hidden=false;$("#botnav").hidden=false;
+  $("#prevBtn").disabled=i===0;$("#nextBtn").textContent=i===L.length-1?"Done":"Next →";
+  $("#prevBtn").onclick=()=>{if(i>0){tab="learn";location.hash=L[i-1].id}};
+  $("#nextBtn").onclick=()=>{tab="learn";location.hash=i<L.length-1?L[i+1].id:""};
+  const tabs=x.review?[["learn","Overview"],["quiz","Quiz"],["speak","Role-play"]]:[["learn","Learn"],["quiz","Quiz"],["speak","Speak"]];
+  $("#app").innerHTML=`<section class="lesson-head c${x.w}"><p class="goal">${esc(x.goal)}</p></section>
+   <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button class="tab" role="tab" id="tab-${k}" aria-selected="${tab===k}" data-tab="${k}">${l}</button>`).join("")}</div>
+   <section class="panel c${x.w}" id="panel"></section>`;
+  $("#app").querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;renderLesson(x)});
+  if(tab==="learn") (x.review?renderOverview:renderLearn)(x);
+  else if(tab==="quiz") renderQuizStart(x);
+  else (x.review?renderRoleplay:renderSpeak)(x);
+}
+
+function renderLearn(x){
+  const p=$("#panel");
+  p.innerHTML=`<div class="tips">${x.tips.map(t=>`<p>${esc(t)}</p>`).join("")}</div>
+   <div class="toolbar"><label class="toggle"><input type="checkbox" id="hideEn"> Hide meanings (tap to peek)</label></div>
+   <div class="words" id="words">${x.v.map((w,k)=>`<div class="word" data-k="${k}">
+     <div><div class="w-jp">${esc(w[0])}</div>${w[1]&&w[1]!==w[0]?`<div class="w-kana">${esc(w[1])}</div>`:""}</div>
+     ${canSpeak?`<button class="say" aria-label="Play ${esc(w[0])}" data-say="${k}">${SPK}</button>`:"<span></span>"}
+     <div class="w-en">${esc(w[2])}</div></div>`).join("")}</div>
+   <div><button class="btn" id="toQuiz">Take the quiz</button></div>`;
+  p.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(x.v[b.dataset.say][0]));
+  $("#hideEn").onchange=e=>$("#words").classList.toggle("hide-en",e.target.checked);
+  p.querySelectorAll(".word").forEach(r=>r.querySelector(".w-en").onclick=()=>r.classList.toggle("peek"));
+  $("#toQuiz").onclick=()=>{tab="quiz";renderLesson(x)};
+}
+function renderOverview(x){
+  const W=WEEKS[x.w-1];
+  const p=$("#panel");
+  p.innerHTML=`<div class="tips"><p>This review pulls 12 questions from every word in Week ${x.w}, then you play out a real scene with Claude as the staff member. Corrections show under each of your lines.</p></div>
+   <div class="row"><button class="btn" id="a">Start the quiz</button><button class="btn ghost" id="b">Go to role-play</button></div>`;
+  $("#a").onclick=()=>{tab="quiz";renderLesson(x)};$("#b").onclick=()=>{tab="speak";renderLesson(x)};
+}
+
+// ---------- quiz ----------
+function buildQuiz(x){
+  const pool=x.review?weekVocab(x.w):x.v;
+  const distract=weekVocab(x.w);
+  const n=x.review?12:Math.min(8,pool.length);
+  return shuffle(pool).slice(0,n).map((w,k)=>{
+    const others=shuffle(distract.filter(o=>o[2]!==w[2]&&o[0]!==w[0])).slice(0,3);
+    const listen=!!x.listen||(x.review&&L.find(l=>l.listen&&l.v.includes(w))&&Math.random()<.6);
+    const dir=listen?"listen":(k%2===0?"read":"recall");
+    const opts=shuffle([w,...others]);
+    return {w,dir,opts};
+  });
+}
+let Q=null;
+function renderQuizStart(x){
+  const prev=P.quiz[x.id];
+  $("#panel").innerHTML=`<div class="qcard"><div class="result">${x.review?"12 questions from the whole week.":"8 questions on this lesson's words."} Some show Japanese and ask the meaning, some show English and ask for the Japanese${x.listen||x.review?", some play audio":""}.</div>
+   ${prev!=null?`<p class="note">Best so far: ${prev}%</p>`:""}
+   <div><button class="btn" id="qs">Start</button></div></div>`;
+  $("#qs").onclick=()=>{Q={x,items:buildQuiz(x),i:0,right:0,miss:[]};renderQ()};
+}
+function renderQ(){
+  const {x,items,i}=Q; const it=items[i];
+  let prompt="";
+  if(it.dir==="read") prompt=`What does this mean?<span class="jp">${esc(it.w[0])}</span>`;
+  else if(it.dir==="recall") prompt=`Which one means <b>${esc(it.w[2])}</b>?`;
+  else prompt=`Listen. What did it say?<div class="row" style="margin-top:8px"><button class="btn ghost" id="play">${canSpeak?"▶ Play":""}</button><button class="btn ghost" id="show">Show text</button></div><span class="jp" id="ltext" hidden>${esc(it.w[0])}</span>`;
+  const jpOpts=it.dir==="recall";
+  $("#panel").innerHTML=`<div class="qcard"><div class="qmeta"><span>Question ${i+1} of ${items.length}</span><span>${Q.right} right</span></div>
+   <div class="qprompt">${prompt}</div>
+   <div class="opts">${it.opts.map((o,k)=>`<button class="opt ${jpOpts?"jp":""}" data-k="${k}">${esc(jpOpts?o[0]:o[2])}</button>`).join("")}</div>
+   <div id="after"></div></div>`;
+  if(it.dir==="listen"){
+    const pl=$("#play"); if(canSpeak){pl.onclick=()=>speak(it.w[0]);} else {pl.hidden=true;$("#ltext").hidden=false;}
+    $("#show").onclick=()=>{$("#ltext").hidden=false};
+  }
+  $("#panel").querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(+b.dataset.k));
+}
+function answer(k){
+  const it=Q.items[Q.i]; const ok=it.opts[k]===it.w;
+  const btns=$("#panel").querySelectorAll(".opt");
+  btns.forEach((b,j)=>{b.disabled=true;if(it.opts[j]===it.w)b.classList.add("right");else if(j===k)b.classList.add("wrong");});
+  if(ok)Q.right++;else Q.miss.push(it.w);
+  if(it.dir==="listen"){const t=$("#ltext");if(t)t.hidden=false;}
+  const last=Q.i===Q.items.length-1;
+  $("#after").innerHTML=`<div class="row"><span class="note">${esc(it.w[0])} · ${esc(it.w[1])} · ${esc(it.w[2])}</span></div><div style="margin-top:10px"><button class="btn" id="nq">${last?"See score":"Next question"}</button></div>`;
+  $("#nq").onclick=()=>{if(last)finishQuiz();else{Q.i++;renderQ();}};
+  $("#nq").focus();
+}
+function finishQuiz(){
+  const {x,items,right,miss}=Q; const pct=Math.round(right/items.length*100);
+  P.quiz[x.id]=Math.max(P.quiz[x.id]||0,pct); save();
+  const pass=pct>=80;
+  $("#panel").innerHTML=`<div class="qcard"><div class="score-big">${pct}%</div>
+   <div class="result">${pass?"Passed. Nice work.":"Not yet. 80% passes. Review the misses and try again."}</div>
+   ${miss.length?`<div><div class="note">Review these:</div><ul class="misses">${miss.map(w=>`<li><span class="jp">${esc(w[0])}</span> (${esc(w[1])}) · ${esc(w[2])}</li>`).join("")}</ul></div>`:""}
+   <div class="row"><button class="btn ${pass?"ghost":""}" id="again">Try again</button>${pass?`<button class="btn" id="on">${x.review?"Go to role-play":"Go to speaking"}</button>`:""}</div></div>`;
+  $("#again").onclick=()=>{Q={x,items:buildQuiz(x),i:0,right:0,miss:[]};renderQ()};
+  const on=$("#on"); if(on) on.onclick=()=>{tab="speak";renderLesson(x)};
+}
+
+// ---------- speaking ----------
+const ERR={not_granted:"Checking is turned off for this page. Compare with the model answer instead.",rate_limited:"Too many checks in a row. Wait a minute and try again.",session_expired:"Sign in to Claude again, then retry.",refused:"That answer couldn't be checked. Rephrase and try again.",invalid_json:"The check came back garbled. Tap Check again.",sampling_disabled:"Checking isn't available on this account. Compare with the model answer instead."};
+const errText=e=>ERR[e&&e.code]||"The check didn't go through. Try again.";
+function renderSpeak(x){
+  const p=$("#panel");
+  const gradeOk=!!sampleFn;
+  p.innerHTML=`<div class="tips"><p>Say each answer out loud first. Then switch your phone keyboard to Japanese, tap its microphone, and say it again so it types what you said. Typing works too.</p>
+   ${gradeOk?`<p>Tap <b>Check</b> and Claude grades it: correct, close, or try again, with the fix.</p>`:`<p>${sampleChecked?"Reveal the model answer, compare, and mark whether you got it.":"Connecting the checker…"}</p>`}</div>
+   ${x.d.map((d,k)=>{const r=(P.speak[x.id]||{})[k];return `<div class="drill" id="dr${k}"><div class="n">Drill ${k+1} of ${x.d.length}${r?` · last result: ${r}`:""}</div><div class="sit">${esc(d[0])}</div>
+     <label class="note" for="ans-${x.id}-${k}">Your answer in Japanese</label>
+     <textarea id="ans-${x.id}-${k}" lang="ja" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="ここに話すか入力"></textarea>
+     <div class="row">${gradeOk?`<button class="btn" data-check="${k}">Check</button>`:""}<button class="btn ghost" data-model="${k}">Show model answer</button></div>
+     <div data-out="${k}"></div></div>`}).join("")}`;
+  p.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{const k=+b.dataset.model;const d=x.d[k];
+    const out=p.querySelector(`[data-out="${k}"]`);out.innerHTML=`<div class="row"><span class="model">${esc(d[1])}</span>${canSpeak?`<button class="say" aria-label="Play model answer">${SPK}</button>`:""}</div>${gradeOk?"":`<div class="row" style="margin-top:8px"><span class="note">Did yours match?</span><button class="btn ghost" data-self="correct">Got it</button><button class="btn ghost" data-self="retry">Not yet</button></div>`}`;
+    const s=out.querySelector(".say");if(s)s.onclick=()=>speak(d[1]);
+    out.querySelectorAll("[data-self]").forEach(sb=>sb.onclick=()=>{const v=sb.dataset.self;const cur=(P.speak[x.id]||{})[k];if(cur!=="correct"||v==="correct"){P.speak[x.id]={...(P.speak[x.id]||{}),[k]:v};save();}
+      const n=p.querySelector(`#dr${k} .n`);if(n)n.textContent=`Drill ${k+1} of ${x.d.length} · last result: ${P.speak[x.id][k]}`;sb.parentNode.innerHTML=`<span class="note">Saved.</span>`;});});
+  p.querySelectorAll("[data-check]").forEach(b=>b.onclick=()=>check(x,+b.dataset.check,b));
+}
+async function check(x,k,btn){
+  const d=x.d[k]; const ta=document.getElementById(`ans-${x.id}-${k}`); const said=ta.value.trim();
+  const out=$("#panel").querySelector(`[data-out="${k}"]`);
+  if(!said){out.innerHTML=`<p class="note">Say or type your answer first.</p>`;return}
+  btn.disabled=true; out.innerHTML=`<p class="note">Checking…</p>`;
+  const prompt=`You are a friendly, exacting Japanese tutor. A learner preparing for a trip to Tokyo is answering a speaking drill. They usually dictate with a phone keyboard, so ignore punctuation, spacing, kana-vs-kanji choice, and speech-to-text slips that would sound right out loud.
+
+Situation: ${d[0]}
+Model answer: ${d[1]}
+Learner said: ${said}
+
+Grade it as a Tokyo station worker, cashier or server would hear it.
+- "correct": natural and polite enough; staff would understand instantly. Other natural phrasings count as correct.
+- "close": understandable but has a real error (wrong particle, wrong verb form, wrong counter, too blunt, English word where Japanese is expected).
+- "retry": wrong meaning, missing the key part, or hard to understand.
+
+Reply with only JSON: {"verdict":"correct"|"close"|"retry","natural":"the most natural Japanese for this situation, close to what the learner tried","reading":"the natural version in hiragana","feedback":"1-2 short sentences in plain English naming the specific fix, or a brief confirmation if correct. No em dashes."}`;
+  try{
+    const r=await sampleFn.json(prompt,{modelTier:"quick"});
+    const v=["correct","close","retry"].includes(r.verdict)?r.verdict:"close";
+    const label={correct:"Correct",close:"Close",retry:"Try again"}[v];
+    out.innerHTML=`<div class="fb ${v}"><div class="verdict">${label}</div><div>${esc(r.feedback||"")}</div>
+      ${r.natural?`<div class="row"><span class="nat">${esc(r.natural)}</span>${canSpeak?`<button class="say" aria-label="Play natural version">${SPK}</button>`:""}</div>`:""}
+      ${r.reading?`<div class="note jp">${esc(r.reading)}</div>`:""}</div>`;
+    const s=out.querySelector(".say");if(s)s.onclick=()=>speak(r.natural);
+    const cur=(P.speak[x.id]||{})[k];
+    if(cur!=="correct"){P.speak[x.id]={...(P.speak[x.id]||{}),[k]:v};save();}
+    const n=$("#panel").querySelector(`#dr${k} .n`); if(n) n.textContent=`Drill ${k+1} of ${x.d.length} · last result: ${(P.speak[x.id]||{})[k]}`;
+  }catch(e){out.innerHTML=`<p class="note">${esc(errText(e))}</p>`;if(e&&(e.code==="not_granted"||e.code==="sampling_disabled")){sampleFn=null;}}
+  finally{btn.disabled=false}
+}
+
+// ---------- role-play ----------
+let RP=null;
+function renderRoleplay(x){
+  const p=$("#panel");
+  if(!sampleFn){p.innerHTML=`<div class="tips"><p>${esc(x.rp.split(". ")[0])}.</p><p>Live role-play needs Claude. Run this scene by voice in the Claude app (ask Claude to play the staff member), then mark it done here.</p></div>
+   <div class="row"><button class="btn" id="rpDone">${P.rp[x.id]?"Done ✓":"Mark role-play done"}</button></div>`;
+   $("#rpDone").onclick=()=>{P.rp[x.id]=true;save();$("#rpDone").textContent="Done ✓";};return}
+  if(!RP||RP.id!==x.id) RP={id:x.id,turns:[],log:[],busy:false};
+  p.innerHTML=`<div class="tips"><p>${esc(x.rp.split(". ")[0])}.</p><p>Reply in Japanese (keyboard mic works great). Each staff line has an English gloss, and your lines get a short correction when needed. Say 終わり to end.</p></div>
+   <div class="chat" id="chat" aria-live="polite"></div>
+   <label class="note" for="rpIn">Your reply</label>
+   <textarea id="rpIn" lang="ja" placeholder="ここに話すか入力"></textarea>
+   <div class="row"><button class="btn" id="rpSend">${RP.log.length?"Send":"Start the scene"}</button><button class="btn ghost" id="rpReset">Restart</button></div>
+   <p class="note" id="rpNote"></p>`;
+  drawChat();
+  $("#rpSend").onclick=()=>rpSend(x);
+  $("#rpReset").onclick=()=>{RP=null;renderRoleplay(x)};
+}
+function drawChat(){
+  const c=$("#chat"); if(!c) return;
+  c.innerHTML=RP.log.length?RP.log.map(m=>m.who==="staff"
+    ?`<div class="msg staff"><div class="jp">${esc(m.jp)}</div>${m.en?`<div class="gloss">${esc(m.en)}</div>`:""}</div>`
+    :`<div class="msg me"><div class="jp">${esc(m.jp)}</div>${m.corr?`<div class="corr">${esc(m.corr)}</div>`:""}</div>`).join("")
+    :`<p class="note">Tap Start the scene. The staff member speaks first.</p>`;
+  c.scrollTop=c.scrollHeight;
+}
+async function rpSend(x){
+  if(RP.busy) return;
+  const inp=$("#rpIn"); const said=inp.value.trim();
+  if(RP.log.length&&!said){$("#rpNote").textContent="Say or type your reply first.";return}
+  const rules=`Role-play for a learner of Japanese preparing for a Tokyo trip. ${x.rp}
+Stay in character and speak natural, polite service Japanese at normal real-world phrasing, one short turn at a time (1-2 sentences). React to what the learner actually says. If they switch to English, gently stay in Japanese.
+Each time, reply with only JSON: {"staff":"your next line in Japanese","en":"short English gloss of your line","correction":"if the learner's latest line had a real error, one short plain-English fix with the corrected Japanese; otherwise empty string","done":true or false}
+Set done to true after the scene reaches a natural end or the learner says 終わり, and make your staff line a polite closing. No em dashes.`;
+  if(said){RP.log.push({who:"me",jp:said});RP.turns.push({role:"user",content:said});}
+  else RP.turns.push({role:"user",content:"(Begin the scene.)"});
+  inp.value="";RP.busy=true;$("#rpSend").disabled=true;$("#rpNote").textContent="Staff is replying…";drawChat();
+  try{
+    const r=await sampleFn.json([{role:"user",content:rules},...RP.turns],{modelTier:"quick",cache:false});
+    const lastMe=[...RP.log].reverse().find(m=>m.who==="me");
+    if(lastMe&&r.correction) lastMe.corr=r.correction;
+    RP.log.push({who:"staff",jp:String(r.staff||""),en:String(r.en||"")});
+    RP.turns.push({role:"assistant",content:JSON.stringify(r)});
+    if(RP.turns.length>40) RP.turns=RP.turns.slice(-40);
+    if(RP.turns[0].role!=="user") RP.turns.shift();
+    if(canSpeak&&r.staff) speak(String(r.staff));
+    if(r.done){P.rp[x.id]=true;save();$("#rpNote").textContent="Scene complete. Restart to try a different take.";}
+    else $("#rpNote").textContent="";
+  }catch(e){
+    if(said){RP.log.pop();RP.turns.pop();inp.value=said;} else RP.turns.pop();
+    $("#rpNote").textContent=errText(e);
+    if(e&&(e.code==="not_granted"||e.code==="sampling_disabled")) sampleFn=null;
+  }finally{RP.busy=false;const b=$("#rpSend");if(b){b.disabled=false;b.textContent="Send";}drawChat();}
+}
+
+render();
+</script>
+
+</body>
+</html>
